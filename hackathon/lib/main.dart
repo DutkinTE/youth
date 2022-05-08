@@ -3,6 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:video_player/video_player.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:hackathon/pages/HomePage.dart';
+import 'package:hackathon/pages/SearchPage.dart';
+import 'package:hackathon/pages/Notification.dart';
 
 String _text = '';
 
@@ -57,9 +60,12 @@ class _MyAppState extends State<MyApp> {
         child: IconButton(
           icon: Icon(Icons.add),
           onPressed: () {
-            FirebaseFirestore.instance
-                .collection('my_posts')
-                .add({'date': '7 мая в 10:25', 'text': _text, 'comments': 0});
+            FirebaseFirestore.instance.collection('my_posts').add({
+              'date': '7 мая в 10:25',
+              'text': _text,
+              'comments': 0,
+              'likes': 0
+            });
           },
           color: Colors.red,
         ),
@@ -83,6 +89,10 @@ class _MyAppState extends State<MyApp> {
   ];
   @override
   Widget build(BuildContext context) {
+    ErrorWidget.builder = (FlutterErrorDetails flutterErrorDetails) {
+      print(flutterErrorDetails.toString());
+      return Center(child: CircularProgressIndicator());
+    };
     return MaterialApp(
         color: Colors.white,
         debugShowCheckedModeBanner: false,
@@ -134,741 +144,6 @@ class _MyAppState extends State<MyApp> {
             onTap: _onItemTapped,
           ),
         ));
-  }
-}
-
-class HomePageWidget extends StatefulWidget {
-  const HomePageWidget({Key? key}) : super(key: key);
-
-  @override
-  State<HomePageWidget> createState() => _HomePageWidgetState();
-}
-
-class _HomePageWidgetState extends State<HomePageWidget> {
-  List afisha = [
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.38.11.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-    Container(
-      width: 15.0,
-      color: Colors.white,
-    ),
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.46.32.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-    Container(
-      width: 15.0,
-      color: Colors.white,
-    ),
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.49.44.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-    Container(
-      width: 15.0,
-      color: Colors.white,
-    ),
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.50.15.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-    Container(
-      width: 15.0,
-      color: Colors.white,
-    ),
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.50.32.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-  ];
-  @override
-  late VideoPlayerController _controller;
-  late Future<void> _initializeVideoPlayerFuture;
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.network(
-      'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-    );
-    _initializeVideoPlayerFuture = _controller.initialize();
-  }
-
-  @override
-  void dispose() {
-    // Ensure disposing of the VideoPlayerController to free up resources.
-    _controller.dispose();
-
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(children: [
-      Container(
-        color: Colors.white,
-        child: Container(
-          margin: const EdgeInsetsDirectional.fromSTEB(15, 15, 0, 15),
-          height: 160.0,
-          child: StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('Afisha').snapshots(),
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              return ListView.builder(
-                  itemCount: afisha.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (BuildContext context, int index) {
-                    return afisha[index];
-                  });
-            },
-          ),
-        ),
-      ),
-      StreamBuilder(
-          stream: FirebaseFirestore.instance.collection('posts').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            Icon _buttonIcon = Icon(Icons.favorite_outline);
-
-            return Container(
-                color: Colors.white,
-                child: Column(children: [
-                  Container(
-                    height: 10,
-                    color: Color.fromRGBO(229, 229, 229, 1),
-                  ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsetsDirectional.fromSTEB(10, 10, 0, 0),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.lightBlueAccent,
-                          radius: 25,
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  10, 10, 0, 0),
-                              child: Text(
-                                  snapshot.data!.docs[0].get('last_name') +
-                                      ' ' +
-                                      snapshot.data!.docs[0].get('name'))),
-                          Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0, 0, 35, 0),
-                              child: Text(snapshot.data!.docs[0].get('date')))
-                        ],
-                      )
-                    ],
-                  ),
-                  Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-                      child: Text(
-                        snapshot.data!.docs[0].get('text'),
-                      )),
-                  Row(children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: IconButton(
-                        onPressed: () {
-                          if (_buttonIcon == Icon(Icons.favorite_outline)) {
-                            _buttonIcon = Icon(Icons.favorite);
-                          } else {
-                            _buttonIcon = Icon(Icons.favorite_outline);
-                          }
-                        },
-                        icon: _buttonIcon,
-                        color: Colors.red,
-                        iconSize: 30,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Icon(
-                        Icons.bookmark_outline_outlined,
-                        color: Colors.red,
-                        size: 30,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(180, 0, 0, 0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        height: 30,
-                        width: 70,
-                        child: Padding(
-                          padding:
-                              const EdgeInsetsDirectional.fromSTEB(10, 0, 0, 0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.comment_outlined,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    5, 0, 0, 0),
-                                child: Text(snapshot.data!.docs[0]
-                                    .get('comment')
-                                    .toString()),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  ])
-                ]));
-          }),
-      StreamBuilder(
-          stream:
-              FirebaseFirestore.instance.collection('image_posts').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            return Container(
-                color: Colors.white,
-                child: Column(children: [
-                  Container(
-                    height: 10,
-                    color: Color.fromRGBO(229, 229, 229, 1),
-                  ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsetsDirectional.fromSTEB(10, 10, 0, 0),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.lightBlueAccent,
-                          radius: 25,
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  10, 10, 0, 0),
-                              child: Text(
-                                  snapshot.data!.docs[0].get('last_name') +
-                                      ' ' +
-                                      snapshot.data!.docs[0].get('name'))),
-                          Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0, 0, 35, 0),
-                              child: Text(snapshot.data!.docs[0].get('date')))
-                        ],
-                      )
-                    ],
-                  ),
-                  Container(
-                      padding: EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-                      child:
-                          Image.network(snapshot.data!.docs[0].get('image'))),
-                  Row(children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Icon(
-                        Icons.favorite_border_outlined,
-                        color: Colors.red,
-                        size: 30,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Icon(
-                        Icons.bookmark_outline_outlined,
-                        color: Colors.red,
-                        size: 30,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(200, 0, 0, 0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        height: 30,
-                        width: 70,
-                        child: Padding(
-                          padding:
-                              const EdgeInsetsDirectional.fromSTEB(10, 0, 0, 0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.comment_outlined,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    5, 0, 0, 0),
-                                child: Text(snapshot.data!.docs[0]
-                                    .get('comment')
-                                    .toString()),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  ])
-                ]));
-          }),
-      StreamBuilder(
-          stream:
-              FirebaseFirestore.instance.collection('video_posts').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            return Container(
-                color: Colors.white,
-                child: Column(children: [
-                  Container(
-                    height: 10,
-                    color: Color.fromRGBO(229, 229, 229, 1),
-                  ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsetsDirectional.fromSTEB(10, 10, 0, 0),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.lightBlueAccent,
-                          radius: 25,
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  10, 10, 0, 0),
-                              child: Text(
-                                  snapshot.data!.docs[0].get('last_name') +
-                                      ' ' +
-                                      snapshot.data!.docs[0].get('name'))),
-                          Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0, 0, 35, 0),
-                              child: Text(snapshot.data!.docs[0].get('date')))
-                        ],
-                      )
-                    ],
-                  ),
-                  Container(
-                      padding: EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-                      child: Stack(children: [
-                        FutureBuilder(
-                          future: _initializeVideoPlayerFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              // If the VideoPlayerController has finished initialization, use
-                              // the data it provides to limit the aspect ratio of the video.
-                              return AspectRatio(
-                                aspectRatio: _controller.value.aspectRatio,
-                                // Use the VideoPlayer widget to display the video.
-                                child: VideoPlayer(_controller),
-                              );
-                            } else {
-                              // If the VideoPlayerController is still initializing, show a
-                              // loading spinner.
-                              return const Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    100, 70, 0, 0),
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                          },
-                        ),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              150, 80, 0, 0),
-                          child: FloatingActionButton(
-                            backgroundColor: Color.fromRGBO(255, 0, 0, 0.0),
-                            onPressed: () {
-                              // Wrap the play or pause in a call to `setState`. This ensures the
-                              // correct icon is shown.
-                              setState(() {
-                                // If the video is playing, pause it.
-                                if (_controller.value.isPlaying) {
-                                  _controller.pause();
-                                } else {
-                                  // If the video is paused, play it.
-                                  _controller.play();
-                                }
-                              });
-                            },
-                            // Display the correct icon depending on the state of the player.
-                            child: Icon(
-                              _controller.value.isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow,
-                              color: Color.fromRGBO(255, 0, 0, 0.0),
-                            ),
-                          ),
-                        ),
-                      ])),
-                  Row(children: [
-                    Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: IconButton(
-                          icon: Icon(Icons.favorite_border),
-                          onPressed: () {},
-                          color: Colors.red,
-                          iconSize: 30,
-                        )),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Icon(
-                        Icons.bookmark_outline_outlined,
-                        color: Colors.red,
-                        size: 30,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(180, 0, 0, 0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        height: 30,
-                        width: 70,
-                        child: Padding(
-                          padding:
-                              const EdgeInsetsDirectional.fromSTEB(10, 0, 0, 0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.comment_outlined,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    5, 0, 0, 0),
-                                child: Text(snapshot.data!.docs[0]
-                                    .get('comment')
-                                    .toString()),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  ])
-                ]));
-          })
-    ]);
-  }
-}
-
-class SearchPageWidget extends StatefulWidget {
-  const SearchPageWidget({Key? key}) : super(key: key);
-
-  @override
-  State<SearchPageWidget> createState() => _SearchPageWidgetState();
-}
-
-class _SearchPageWidgetState extends State<SearchPageWidget> {
-  List afisha = [
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.51.22.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-    Container(
-      width: 15.0,
-      color: Colors.white,
-    ),
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.49.44.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-    Container(
-      width: 15.0,
-      color: Colors.white,
-    ),
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.46.32.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-    Container(
-      width: 15.0,
-      color: Colors.white,
-    ),
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.50.15.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-    Container(
-      width: 15.0,
-      color: Colors.white,
-    ),
-    Container(
-      child: Image.asset('assets/Снимок экрана 2022-05-07 в 07.50.32.png'),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      width: 100.0,
-    ),
-  ];
-  @override
-  Widget build(BuildContext context) {
-    return ListView(children: [
-      Container(
-        color: Colors.white,
-        child: Container(
-          margin: const EdgeInsetsDirectional.fromSTEB(15, 15, 0, 15),
-          height: 160.0,
-          child: StreamBuilder(
-            stream: FirebaseFirestore.instance.collection('Afisha').snapshots(),
-            builder:
-                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              return ListView.builder(
-                  itemCount: afisha.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (BuildContext context, int index) {
-                    return afisha[index];
-                  });
-            },
-          ),
-        ),
-      ),
-      StreamBuilder(
-          stream: FirebaseFirestore.instance.collection('posts').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            return Container(
-                color: Colors.white,
-                child: Column(children: [
-                  StreamBuilder(
-                      stream: FirebaseFirestore.instance
-                          .collection('image_posts')
-                          .snapshots(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<QuerySnapshot> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return Container(
-                            color: Colors.white,
-                            child: Column(children: [
-                              Container(
-                                height: 10,
-                                color: Color.fromRGBO(229, 229, 229, 1),
-                              ),
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding:
-                                        const EdgeInsetsDirectional.fromSTEB(
-                                            10, 10, 0, 0),
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.green,
-                                      radius: 25,
-                                    ),
-                                  ),
-                                  Column(
-                                    children: [
-                                      Padding(
-                                          padding: const EdgeInsetsDirectional
-                                              .fromSTEB(10, 10, 0, 0),
-                                          child: Text(snapshot.data!.docs[1]
-                                                  .get('last_name') +
-                                              ' ' +
-                                              snapshot.data!.docs[1]
-                                                  .get('name'))),
-                                      Padding(
-                                          padding: const EdgeInsetsDirectional
-                                              .fromSTEB(0, 0, 15, 0),
-                                          child: Text(snapshot.data!.docs[1]
-                                              .get('date')))
-                                    ],
-                                  )
-                                ],
-                              ),
-                              Container(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      10, 10, 10, 10),
-                                  child: Image.network(
-                                      snapshot.data!.docs[1].get('image'))),
-                              Row(children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Icon(
-                                    Icons.favorite_border_outlined,
-                                    color: Colors.red,
-                                    size: 30,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Icon(
-                                    Icons.bookmark_outline_outlined,
-                                    color: Colors.red,
-                                    size: 30,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      200, 0, 0, 0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    height: 30,
-                                    width: 70,
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsetsDirectional.fromSTEB(
-                                              10, 0, 0, 0),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.comment_outlined,
-                                            color: Colors.red,
-                                            size: 20,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional
-                                                .fromSTEB(5, 0, 0, 0),
-                                            child: Text(snapshot.data!.docs[1]
-                                                .get('comment')
-                                                .toString()),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ])
-                            ]));
-                      }),
-                  Container(
-                    height: 10,
-                    color: Color.fromRGBO(229, 229, 229, 1),
-                  ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsetsDirectional.fromSTEB(10, 10, 0, 0),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.orange,
-                          radius: 25,
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  10, 10, 0, 0),
-                              child: Text(
-                                  snapshot.data!.docs[1].get('last_name') +
-                                      ' ' +
-                                      snapshot.data!.docs[1].get('name'))),
-                          Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0, 0, 5, 0),
-                              child: Text(snapshot.data!.docs[1].get('date')))
-                        ],
-                      )
-                    ],
-                  ),
-                  Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-                      child: Text(
-                        snapshot.data!.docs[1].get('text'),
-                      )),
-                  Row(children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Icon(
-                        Icons.favorite_border_outlined,
-                        color: Colors.red,
-                        size: 30,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Icon(
-                        Icons.bookmark_outline_outlined,
-                        color: Colors.red,
-                        size: 30,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(200, 0, 0, 0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        height: 30,
-                        width: 70,
-                        child: Padding(
-                          padding:
-                              const EdgeInsetsDirectional.fromSTEB(10, 0, 0, 0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.comment_outlined,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                    5, 0, 0, 0),
-                                child: Text(snapshot.data!.docs[1]
-                                    .get('comment')
-                                    .toString()),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  ])
-                ]));
-          }),
-    ]);
   }
 }
 
@@ -1138,6 +413,9 @@ class _UserPageWidgetState extends State<UserPageWidget> {
                                               AsyncSnapshot<QuerySnapshot>
                                                   snapshot) {
                                             return ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  primary: Colors.red,
+                                                ),
                                                 onPressed: () {
                                                   FirebaseFirestore.instance
                                                       .collection('users')
@@ -1225,36 +503,21 @@ class _UserPageWidgetState extends State<UserPageWidget> {
                                 )
                               ],
                             ),
-                            Padding(
+                            Container(
+                                width: 370,
                                 padding: EdgeInsetsDirectional.fromSTEB(
                                     10, 10, 10, 10),
                                 child: Text(
                                   snapshot.data!.docs[index].get('text'),
+                                  textAlign: TextAlign.left,
                                 )),
                             Row(children: [
                               Padding(
                                 padding: const EdgeInsets.all(10.0),
-                                child: Icon(
-                                  Icons.favorite_border_outlined,
-                                  color: Colors.red,
-                                  size: 30,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Icon(
-                                  Icons.bookmark_outline_outlined,
-                                  color: Colors.red,
-                                  size: 30,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    200, 0, 0, 0),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(30),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                   height: 30,
                                   width: 70,
@@ -1264,24 +527,48 @@ class _UserPageWidgetState extends State<UserPageWidget> {
                                             10, 0, 0, 0),
                                     child: Row(
                                       children: [
-                                        Icon(
-                                          Icons.comment_outlined,
-                                          color: Colors.red,
-                                          size: 20,
-                                        ),
+                                        Icon(Icons.favorite_outline,
+                                            color: Colors.red),
                                         Padding(
                                           padding: const EdgeInsetsDirectional
                                               .fromSTEB(5, 0, 0, 0),
                                           child: Text(snapshot.data!.docs[index]
-                                              .get('comments')
+                                              .get('likes')
                                               .toString()),
                                         )
                                       ],
                                     ),
                                   ),
                                 ),
-                              )
-                            ])
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                height: 30,
+                                width: 70,
+                                child: Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
+                                      10, 0, 0, 0),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.comment_outlined,
+                                        color: Colors.red,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional
+                                            .fromSTEB(5, 0, 0, 0),
+                                        child: Text(snapshot.data!.docs[0]
+                                            .get('comments')
+                                            .toString()),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ]),
                           ])),
                       Padding(
                         padding:
@@ -1332,56 +619,5 @@ class _AddWidgetState extends State<AddWidget> {
             ))
       ],
     );
-  }
-}
-
-class notifcationWidget extends StatefulWidget {
-  const notifcationWidget({Key? key}) : super(key: key);
-
-  @override
-  State<notifcationWidget> createState() => _notifcationWidgetState();
-}
-
-class _notifcationWidgetState extends State<notifcationWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return Stack(children: [
-      Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(0, 40, 0, 0),
-        child: Image.asset(
-          'assets/Снимок экрана 2022-05-07 в 07.09.27.png',
-          height: 700,
-        ),
-      ),
-      StreamBuilder(
-        stream:
-            FirebaseFirestore.instance.collection('notifications').snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Column(
-                children: [
-                  Container(
-                    height: 10,
-                    color: Color.fromRGBO(229, 229, 229, 1),
-                    width: 400,
-                  ),
-                  Container(
-                    padding: EdgeInsetsDirectional.fromSTEB(20, 20, 20, 20),
-                    width: 400,
-                    color: Colors.white,
-                    child: Text(
-                      snapshot.data!.docs[index].get('text'),
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    ]);
   }
 }
