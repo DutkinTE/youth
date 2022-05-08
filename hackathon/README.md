@@ -1,16 +1,27 @@
-# hackathon
+Данное приложение сделано в рамках МПИТ-2022
 
-A new Flutter project.
+Участники команды:
+  Разработчик - Дуткин Тимур Евгеньевич
+    ел.почта - dutkinte@gmail.com
+    тел. - 89245699299
+  Менеджер - Колодезников Александр Андреевич
+    ел.почта - kolodeznikovsasha@gmail.com
+    тел. - 89659969249
+  Дизайнер - Моттуева Уруйдана Михайловна
+    ел.почта - danamottueva@gmail.com
+    тел. - 89342620163
+    
+Суть проекта - Это приложение в виде социальной сети направленное на патриотическое воспитание детей, с возможностью выкладывания постов для всех и выставления афиш организациям.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Стек технологий:
+  Для реализации приложения я использовал кроссплатформенный фреймворк Флаттер и базу данных FireBase.
+  
+На данный момент реализовано:
+  Подключение к базе данных Firebase
+  Добавление своего поста
+  Редактирование профиля
+  Удаление постов
+  Подробное описание афиш
+  Видео/фото посты
+  Видео плеер
+  Уведомления
